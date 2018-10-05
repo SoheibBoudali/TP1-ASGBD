@@ -1,0 +1,5 @@
+insert all
+into service values ('CAR','Cardiologie','B',80)
+into service values ('CHG','Chirurgie générale','A',34)
+into service values ('REA','Réanimation et Traumatologie','A',19)
+select 1 from dual;
