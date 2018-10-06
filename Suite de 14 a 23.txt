@@ -1,0 +1,65 @@
+/*14*/
+UPDATE SERVICE
+SET DIRECTEUR =(SELECT NUM_EMP FROM EMPLOYE WHERE NOM_EMP='BOULARAS' and PRENOM_EMP='FATIMA')
+WHERE NOM_SERVICE='Cardiologie';
+
+/* 15 */
+ALTER TABLE INFIRMIER DISABLE CONSTRAINT CHK_SALLAIRE;
+
+UPDATE INFIRMIER
+SET SALAIRE = SALAIRE-5000 where Rotation='JOUR';
+
+/*reactivation de la contrainte impossible */
+ALTER TABLE INFIRMIER ENABLE CONSTRAINT CHK_Sallaire;
+ 
+ 
+/* 16 */
+DELETE FROM MEDECIN WHERE SPECIALITE='CARDIOLOGUE'
+
+/* 17 */
+CREATE INDEX SPEC ON MEDECIN('SPECIALITE');
+
+
+/*********************Langage d'interrogation de dennées*******/
+/*18 */
+SELECT NOM_PATIENT , PRENOM_PATIENT FROM PATIENT WHERE MUTUELLE='MAAF';
+
+/*19*/
+select lit, num_chambre, nom_service , prenom_patient , nom_patient, mutuelle from hospitalisation h , service s, patient p
+where h.num_patient=p.num_patient and p.mutuelle like 'MN%' and h.code_service = s.code_service and s.batiment='B';
+
+/*20*/ 
+/* create view*/ 
+create view Patmedspec (num_patient,nbmed,nbspec) 
+as select num_patient,count(s.num_med),count(distinct SPECIALITE) 
+from soigne s, medecin m where (s.num_med=m.num_med ) group by (num_patient);
+
+select * from patmedspec where nbmed>3; 
+
+/* 21*/ 
+
+
+/* 22*/
+
+create view serpatient (code_service,nbpat)  
+as select code_service,count(num_patient) 
+from hospitalisation group by code_service;
+
+create view serinf (code_service,nbinf) 
+as select code_service,count(num_inf)
+from infirmier group by code_service;
+
+select si.code_service,nbinf,nbpat,(nbpat/nbinf) 
+from serinf si , serpatient sp 
+where si.code_service=sp.code_service ;
+
+/*23*/ 
+create view medser(num_med,code_service) as select distinct num_med,code_service
+from soigne s , hospitalisation h where h.num_patient=s.num_patient ;
+
+create view medser2 (num_med,nbser) as select num_med,count(code_service) 
+from medser group by(num_med);
+
+select nom_emp,prenom_emp from employe E , medser2 M 
+where  M.nbser=(select count (*) from service )
+and E.num_emp=M.num_med ;
